@@ -4,6 +4,7 @@ date: 2022-08-22T15:13:19+03:00
 draft: true
 tags: ["programming", "algorithms", "java"]
 summary: Recap algorithms
+math: true
 ---
 
 # [Created with Mosh](https://codewithmosh.com/p/data-structures-algorithms)
@@ -19,6 +20,7 @@ O(n+n+...+n) = O(n)
 O(n + n^2) = O(n^2)
 - Logarithmic `O(log n)`
 - Exponential `O(2^n)`
+![image of big O](https://miro.medium.com/max/1400/1*5ZLci3SuR0zM_QlZOADv8Q.jpeg)
 
 ---
 ## Arrays
@@ -173,6 +175,8 @@ Very very very hardly ever `O(n)` because Implemented using Arrays
 - Delete `O(log n)`
 > tree can have `O(n)`  
 if not structured properly
+
+> h (height) = `O(log n)` >> `O(h) == O(log n)`
 ### Implementations
 ### Popular tasks
 - Implement
@@ -250,20 +254,165 @@ Self-balancing trees
 ### Implementations
 ### Popular tasks
 - Draw rotation
-- Check if balanced (difference of every node height of left sub-tree and right sub-tree less than 2)
+- Check if balanced (difference of every node's height of left sub-tree and right sub-tree less than 2)
 - Is perfect (every leaf is full and leaves depth is the same)
-
 ```goat
-       55
-      /
-    50
-   /  \
-  /    45
-40              > is perfect                  
-  \    35
-   \  /
-    30
-      \
-       25
-    
+        40            
+       /  \          
+      /    \          
+    30      50     >  is perfect    
+   /  \    /  \                   
+  /    \  /    \                  
+55    25  35   55       
 ```
+
+---
+## Heaps
+Special tipe of tree that is
+- complete 
+> All levels except the last one should be full of nodes, and  
+nodes are inserted from left to right
+- all child less than ancestor
+> called `heap property`
+```goat
+     o            o                                
+    / \          / \                              
+   o   o        o   o                            
+  /            /   /                                
+ o            o   o                                
+
+(complete)   (not complete)
+```
+
+How a MaxHeap will insert [40, 30, 20, 50]
+```goat
+40    40    40     
+     /     /  \                            
+    30   30    20  
+```
+Bubling up
+```goat
+       40                                 
+      /  \  
+    30    20
+   /       
+  50  <   
+          
+       40   
+      /  \  
+ >  50    20
+   /        
+  30        
+         
+   >  50   
+     /  \  
+   40    20
+  /        
+ 30        
+```
+Bubling down
+```goat
+     50         >  30            40                     
+    /  \          /  \          /  \                     
+  40    20      40    20   >  30    20                   
+ /                                                      
+30                                                     
+```
+> in this example we'll remove 50
+
+
+### O
+- Lookup 
+  - max (min) `O(1)` 
+- Insert `O(log n)`
+- Delete `O(log n)`
+### Implementations
+### Popular tasks
+- Implement
+- Heapify regular array
+- Get Kth larges item 
+> {5, 3, 8} > k = 1 -> 8
+- Check if array represents MaxHeap
+
+---
+## Tries
+Comes from re**trie**val
+> Other names: Digital, Radix, Prefix
+### O 
+- Lookup `O(L)`
+- Insert `O(L)`
+- Delete `O(L)`
+> O(L) stands for Length of word, for word `hello` > 5
+### Implementations
+### Popular tasks
+- Implement 
+- Find longest common Prefix
+> [care, careful, car] -> car
+
+
+---
+## Graphs
+Node - vertex  
+Two directrly connected nodes - neighbours / adjacents  
+Can be directed or undirected Graphs  
+### O 
+#### Implementations By 
+- Adjacency matrix  
+
+|        	| Clara 	| Sophie 	| John 	|
+|--------	|-------	|--------	|------	|
+| Clara  	| 0     	| 0      	| 1    	|
+| Sophie 	| 1     	| 0      	| 0    	|
+| John   	| 1     	| 1      	| 0    	|
+
+- Adjacency list
+
+> V stands for Vertixes  
+
+>E stands for Edges  
+E = V * (V - 1) \\(\approx\\) \\(V^{2}\\) in the worst case scenario
+
+>K stands for Edges current node has  
+K = V in the worst case scenario
+
+|  | Matrix                      	| List                        	| List (worst case scenario) |
+|--|-----------------------------	|-----------------------------	|--------------------------- |
+| Space   | **O( \\(V^{2}\\) )** 	| **O(V+E)**    	              | **O( \\(V^{2}\\) )**       |
+| Add Edge | **O(1)**            	| **O(K)**           	          | **O(V)**           	       |
+| Remove Edge |  **O(1)**        	| **O(K)**                      | **O(V)**                   |
+| Query Edge | **O(1)**          	| **O(K)**         	            | **O(V)**         	         |
+| Find neighbours | **O(V)**     	| **O(K)**                     	| **O(V)**                   |
+| Add node | **O(V)**            	| **O(1)**                     	| **O(1)**                   |
+| Remove node | **O( \\(V^{2}\\) )** | **O( \\(V^{2}\\) )**       | **O( \\(V^{2}\\) )**       |
+
+### Popular tasks
+- Check if has a cycle (all visiting visited)
+- Topological sorting
+```goat
+    A
+X >    > P  > result [X, A, B, P] or [X, B, A, P]
+    B
+```
+
+---
+## Undirected Graphs
+### Popular tasks
+- Find the shortest distance (Dijkstra’s Shortest Path Algorithm)
+- Check if has a cycle
+- Minimum Spanning tree (Prim's Algorithm)
+```goat
+     2                2   
+   A---B            A---B 
+   |1 /|             1 /  
+ 3 | / | 4    >       /   
+   C---D            C---D 
+     5                5   
+```
+
+## Sorting
+### Bubble sort
+|  | Best | Worst |
+|--|------|-------|
+|Passes| O(n) | O(n) |
+|Comparisons| O(n) | O(n) |
+|Total | O(n) | O( \\(n^{2}\\) ) |
