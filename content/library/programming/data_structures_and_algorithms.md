@@ -1,13 +1,13 @@
 ---
 title: "Data structures and algorithms"
 date: 2022-08-22T15:13:19+03:00
-draft: true
+draft: false
 tags: ["programming", "algorithms", "java"]
 summary: Recap algorithms
 math: true
 ---
 
-# [Created with Mosh](https://codewithmosh.com/p/data-structures-algorithms)
+> <cite>[Created with help of **Mosh**](https://codewithmosh.com/p/data-structures-algorithms)</cite>
 
 ## Big O notation
 Big O uses to describe the performance of an algorithm  
@@ -411,8 +411,180 @@ X >    > P  > result [X, A, B, P] or [X, B, A, P]
 
 ## Sorting
 ### Bubble sort
+![Visualize](https://thumbs.gfycat.com/ExaltedInconsequentialDwarfrabbit-size_restricted.gif)
+|  | Best | Worst |
+|--|------|-------|
+|Passes| O(1) | O(n) |
+|Comparisons| O(n) | O(n) |
+|Total | O(n) | O( \\(n^{2}\\) ) |
+
+### Selection sort
+Find the minimux value and swap it with first not sorted part of the array
+![Visualize](https://i0.wp.com/algorithms.tutorialhorizon.com/files/2019/01/Selection-Sort-Gif.gif?ssl=1)
 |  | Best | Worst |
 |--|------|-------|
 |Passes| O(n) | O(n) |
 |Comparisons| O(n) | O(n) |
+|Total | O( \\(n^{2}\\) ) | O( \\(n^{2}\\) ) |
+
+### Insertion sort 
+![Visualize](https://upload.wikimedia.org/wikipedia/commons/9/9c/Insertion-sort-example.gif)
+|  | Best | Worst |
+|--|------|-------|
+|Iterations| O(n) | O(n) |
+|Shift items| O(1) | O(n) |
 |Total | O(n) | O( \\(n^{2}\\) ) |
+
+### Merge sort
+![Visualize](https://upload.wikimedia.org/wikipedia/commons/c/cc/Merge-sort-example-300px.gif?20151222172210)
+|  | Best | Worst |
+|--|------|-------|
+|Dividing| O( \\(\log{n} \\) ) | O( \\(\log{n} \\) ) |
+|Merging| O(n) | O(n) |
+|Total | O( \\(n \log{n} \\) ) | O( \\(n \log{n} \\) ) |
+|Space | O (n) | O (n) |
+
+### Quick sort
+Maybe this sort algorithm is a default algorithm for most programming languages
+
+![Visualize](https://camo.githubusercontent.com/b5204601fba09ebd19c0db81579be91c8edf72b30837c60bbce39fc675e92dcb/68747470733a2f2f637572726963756c756d2d636f6e74656e742e73332e616d617a6f6e6177732e636f6d2f646174612d737472756374757265732d616e642d616c676f726974686d732f717569636b736f72742f717569636b5f736f72745f706172746974696f6e5f616e696d6174696f6e2e676966)
+|  | Best | Worst |
+|--|------|-------|
+|Partitioning| O(n) | O(n) |
+|Number of Partitioning times| O( \\( \log{n} \\) ) | O(n) |
+|Total | O( \\(n \log{n} \\) ) | O( \\(n^{2} \\) ) |
+|Space | O ( \\(n \log{n} \\) ) | O(n) |
+
+
+### Counting sort
+First non-comparison sort from above
+
+![Visualize](https://miro.medium.com/max/1400/1*7QYa43QqcYgfnAAAr3sUWg.gif)
+|  |  |
+|--|------|
+| Time | O(n + K) | 
+|Space | O(K) | 
+
+> Where K is the largest value in the array
+
+
+
+### Bucket sort
+{{< youtube VuXbEb5ywrU >}}
+|  | Best | Worst |
+|--|------|-------|
+|Distribution| O(n) | O(n) |
+|Iteratin buckets| O(K) | O(K) |
+|Sorting|O(1)| \\( O(n^{2}) \\) |
+|Total | O(n + K) | \\( O(n^{2}) \\) |
+|Space | O(n + K)|
+
+> Where K is the number of buckets
+
+## Searching
+### Linear Search
+
+|  | Best | Worst |
+|--|------|-------|
+|Time| O(1) | O(n) |
+
+### Binary Search
+Sorted collection
+
+|  | Best | Worst |
+|--|------|-------|
+|Time| O(1) | \\( O(\log{n}) \\) |
+
+|  | Recursion | Iteration |
+|--|------|-------|
+|Space| \\( O(\log{n}) \\) | O(1) |
+
+### Ternary Search
+It's not faster than binary search
+Sorted collection
+
+|  | Best | Worst |
+|--|------|-------|
+|Time| O(1) | \\( O(\log_3{n}) \\) |
+
+### Jump Search 
+Sorted collection
+
+|  | Best | Worst |
+|--|------|-------|
+|Time| O(1) | \\( O(\sqrt{n}) \\) |
+
+
+### Exponential Search 
+Sorted collection
+
+|  | Best | Worst |
+|--|------|-------|
+|Time| O(1) | \\( O(\log{i}) \\) |
+
+> Where `i` is a position of target in the collection if it exists or not
+
+
+### String Manipulations
+Popular tasks
+
+1- Find the number of vowels in a string. Vowels in English are A, E, O, U and I.
+> Input: “hello”  
+Output: 2
+
+2- Reverse a string.
+> Input: “hello”  
+Output: “olleh”
+
+3- Reverse the order of words in a sentence.
+> Input: “Trees are beautiful”  
+Output: “beautiful are Trees”
+
+4- Check if a string is a rotation of another string.
+> Input: “ABCD”, “DABC” (rotate one char to the right)  
+Output: true
+
+> Input: “ABCD”, “CDAB” (rotate two chars to the right)  
+Output: true
+
+> Input: “ABCD”, “ADBC”  
+Output: false
+
+5- Remove duplicate characters in a string.
+> Input: “Hellooo!!”  
+Output: “Helo!”
+
+6- Find the most repeated character in a string.
+> Input: “Hellooo!!”  
+Output: ‘o’
+
+7- Capitalize the first letter of each word in a sentence. Also, remove any extra spaces between words.
+> Input: “trees are beautiful”  
+Output: “Trees Are Beautiful”
+
+> Input: “ trees are beautiful ”  
+Output: “Trees Are Beautiful”
+
+8- Detect if two strings are anagram of each other. A string is an anagram of another string if it has the exact same characters in any order.
+> Input: “abcd”, “adbc”  
+Output: true
+
+> Input: “abcd”, “cadb”  
+Input: true
+
+> Input: “abcd”, “abcd”  
+Output: true
+
+> Input: “abcd”, “abce”  
+Output: false
+
+9- Check if a string is palindrome. If we read a palindrome string from
+left or right, we get the exact same characters.
+> Input: “abba”  
+Output: true
+
+> Input: “abcba”  
+Output: true
+
+> Input: “abca”  
+Output: false
