@@ -124,3 +124,122 @@ export const object1 = {};
 - Lexical environment (блок кода з якого видно ідентифікатори)
 - Object context: this (привязка до контексту обєкта)
 - Global context (global, window, sandbox)
+
+
+# Types 
+- int 
+> bitwise operations
+
+- bigint
+> 1234n -> convert to bigint
+- Underfined
+> with scalars  
+
+let empty;
+- Null
+> with references  
+
+const emptyObject;
+- NaN
+> Number  
+
+const nan = underfined + 1;
+- Empty element
+
+## Parsing
+```Javascript
+parseint("11", 2); // 3  
+parseint("11", 8); // 9 Системи числення
+
+console.log(parseInt(5 * 1e30)); // 5
+console.log(parseInt(0.00000000000005)); // 5
+console.log(parseInt(0.000005)); // 0
+```
+
+## Delete
+In strict mode cann't delete `const`, but can `var` or `object.filed`  
+delete object.filed
+
+## Check existance
+```Javascript
+const arr = ["hello"];
+(1 in arr) // false
+```
+
+# Functions
+Чисті - завжди однаковий результат (log, sin, y = x + 10)  
+З побічним ефектом (дані ззовні)
+
+```Javascript
+const foo = (...args) => {}
+```
+Обєктний контекст, функціональний контекст
+
+```Javascript
+function foo (a, b) {
+    return a + b;
+}
+
+foo(1, 2);
+foo.call(null, 1, 2); // null as a object context
+
+const arr = [1, 2];
+foo(...arr); // spread operator
+foo.apply(null, 1, 2); // null as a object context
+```
+[Замикання](https://youtu.be/pn5myCmpV2U?t=3865)
+
+
+```Javascript
+const add = x => {
+  let variable = 0;
+
+  return (y => {
+    variable = x + y;
+    console.log(variable);
+    return add(variable);
+  });
+};
+
+console.log(add(1)(2)(3));
+```
+
+# Objects
+```Javascript
+const obj = {} or new Object()
+{
+  get some() {}
+  set some() {}
+}
+```
+
+# Prototypes
+
+```Javascript
+function Point(x, y) {
+  this.x = x;
+  this.y = y;
+}
+
+Point.greet = ()=>console.log(`Greetings ${this.x} and ${this}`)
+Point.prototype.toString = ()=>console.log(`${this.x} and ${this}`);
+
+console.log(Point);
+
+const a = new Point(1, 2);
+console.log(a);
+
+const b = Point(1, 2);
+console.log(b);
+
+a.toString();
+// a.greet();
+Point.greet();
+Point.toString();
+```
+
+# Antipatterns
+
+- names
+- magic numbers
+- hardcodes
