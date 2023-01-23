@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  server:
+    build: .
+    ports:
+      - 1313:1313
+    volumes:
+      - ./:/app
