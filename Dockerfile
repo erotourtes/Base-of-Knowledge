@@ -4,7 +4,7 @@ FROM klakegg/hugo:0.107.0-ubuntu-onbuild
 # USER app
 
 WORKDIR /app
-COPY . . 
+# COPY . . 
 
 EXPOSE 1313
 

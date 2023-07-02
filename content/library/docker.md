@@ -44,7 +44,7 @@ docker image tag <name>:version <another-name>:new-version # to change tag later
 
 ### Exec
 Execute a command in a running container  
-`docker exec <container-id> <command>`  
+`docker exec -it <container-id> <command>`  
 `docker exec -it -u <user-name> <id>`
 
 ### Volumes
@@ -197,7 +197,7 @@ ENTRYPOINT ["npm", "start"]
 ## Docker-compose
 `docker-compose build`  
 `docker-compose build -no-cache -pull`  
-`docker-compose up -build -d`  
+`docker-compose up --build -d`  
 `docker-compose down`  
 `docker-compose ps` shows only running continaers from the app
 
