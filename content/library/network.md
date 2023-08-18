@@ -690,3 +690,28 @@ GET /
 
 curl http://www.youtube.com
 ```
+
+
+## CLI wifi connection
+```sh
+nmcli general status
+
+nmcli connection show --active
+
+
+nmcli radio wifi
+# Turn wifi on or off
+
+nmcli radio wifi <on|off>
+
+nmcli device wifi list
+
+# Refresh previous list
+nmcli device wifi rescan
+
+# Create a new connection to an open AP
+nmcli device wifi connect <SSID|BSSID>
+
+# Create a new connection to a password protected AP
+nmcli device wifi connect <SSID|BSSID> password <password>
+```

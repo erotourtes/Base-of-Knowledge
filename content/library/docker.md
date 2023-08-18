@@ -29,7 +29,7 @@ docker image ls (or docker images) # all images
 
 ### Build
 ```fish
-docker build -t <name>:version ./path/to/Dockerfile # tag with a name and a version
+docker build -t <name>:version ./path/to/directoryWithDockerFile # tag with a name and a version
 docker image tag <name>:version <another-name>:new-version # to change tag later
 ```
 > docker build -t name:v1 .
@@ -78,7 +78,7 @@ docker stop <container-id>
 
 ### Dockerfile
 ```fish
-docker build -t <name>:<tag> ./path/Dockerfile
+docker build -t <name>:<tag> ./path/toDirWithDockerfile
 docker run -d -p <local>:<container> --name <name> -v <volume-name> /absolute/path <image>
 ```
 

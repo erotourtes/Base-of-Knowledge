@@ -203,3 +203,18 @@ class A {
 const a = new A((getData) => console.log(getData()));
 
 // TODO refactor C lab 1.6
+
+
+Semyon Sobolev
+rocketsam
+Jun 28
+
+I had a very irritating freezes and lags on Latitude 7430 on Fedora 37, and what helped me is blacklisting a module intel_rapl_msr.
+
+You may give it a try with no changes to your system with rmmod intel_rapl_msr
+In case it helps just create a file /etc/modprobe.d/intel_rapl_msr-blacklist.conf with following contents:
+blacklist intel_rapl_msr
+
+
+so 
+echo blacklist intel_rapl_msr >> /etc/modprobe.d/intel_rapl_msr-blacklist.conf

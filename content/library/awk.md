@@ -42,3 +42,7 @@ Awk supports various operators for performing operations on fields, variables, a
     Arithmetic operators: +, -, *, /, %.
     Comparison operators: ==, !=, <, >, <=, >=.
     Assignment operators: =, +=, -=, *=, /=, %=.
+
+
+Example of calculating total duration of videos in the folder  
+`l | rg 'mp4' | xargs -I {} ffprobe -i {} -show_entries format=duration -v quiet -of csv="p=0" | awk '{s+=$1} END {print s/60 " minutes"}'`
