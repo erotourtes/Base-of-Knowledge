@@ -51,4 +51,10 @@ params:
             * Good times become good memories, but bad times become good lessons.
     socialIcons:
         - name: github
-          url: "https://github.com/"
+
+    assets: 
+        favicon: "assets/favicon.ico"
+        favicon16x16: "assets/favicon-16x16.png"
+        favicon32x32: "assets/favicon-32x32.png"
+        apple_touch_icon: "assets/apple-touch-icon.png" 
+        safari_pinned_tab: "assets/apple-touch-icon.png" 

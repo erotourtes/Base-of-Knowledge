@@ -587,3 +587,453 @@ TODO
 # 15
 # Multiple users with same UID is not possible.
 ```
+
+### lab 7
+rpm
+yum
+ldd
+ldconfig
+
+```fish
+dnf install mc
+# to quite -> alt+0
+
+ldd $(which mc) # shows linked libraries
+```
+
+#### Building .rpm
+1. install tools `sudo dnf install -y rpmdevtools rpmlint`
+1. create project structure `rpmdev-setuptree`
+1. tar your source files `tar czf $PCK_NAME.tar.gz $PCK_NAME`
+1. move tar file `cp %PCK_NAME.tar.gz  ~/rpmbuild/SOURCES/`
+1. generate a .spec file inside ~/rpmbuild/SPEC `cd ~/rpmbuild/SPEC/ && rpmdev-newspec $PCK_NAME` 
+1. edit .spec file
+1. build the rpm `rpmbuild -ba ~/rpmbuild/SPECS/%PCK_NAME.spec`  
+> Build source `rpmbuild -bs ~/rpmbuild/SPECS/my.spec`  .src.rpm  
+> Build binary `rpmbuild -bb ~/rpmbuild/SPECS/my.spec`  .rpm
+
+##### Folders Structure
+- The BUILD directory is used during the build process of the RPM package. This is where the temporary files are stored, moved around, etc.
+- The RPMS directory holds RPM packages built for different architectures and noarch if specified in .spec file or during the build.
+- The SOURCES directory, as the name implies, holds sources. This can be a simple script, a complex C project that needs to be compiled, a pre-compiled program, etc. Usually, the sources are compressed as .tar.gz or .tgz files.
+- The SPEC directory contains the .spec files. The .spec file defines how a package is built. More on that later.
+- The SRPMS directory holds the .src.rpm packages. A Source RPM package doesn't belong to an architecture or distribution. The actual .rpm package build is based on the .src.rpm package.
+- <name>-<version>-<release>.<arch>.rpm
+
+##### Macros:
+> rpm --eval '%{_bindir}'
+- %{_bindir}
+- %{name} name of the package (as defined in the Name: field)
+- %{version} version of the package (as defined in the Version: field)
+- %{_datadir} shared data (/usr/sbin by default)
+- %{_sysconfdir} configuration directory (/etc by default)
+
+##### .spec file
+```spec
+%define version 0.0.1
+%define release 1%{?dist}
+
+Name:           lab7_12
+Version:        %{version}
+-- version for the dnf versioning
+Release:        %{release}
+Summary:        A lab7_12 script
+
+License:        Apache 2.0
+-- how the package name is called (inside ~/rpmbuild/SOURCES/lab7_12-0.0.1.tar.gz)
+Source0:        %{name}-%{version}.tar.gz
+
+Vendor: mab.inc
+Packager: Ma Sir <ma@mab.com>
+
+BuildRequires: gcc
+BuildRequires: make
+BuildRequires: libfoobar-devel
+
+Requires: libfoobar >= 1.2.3
+Requires: libbaz
+
+%description
+Description of the lab7_12 script
+
+-- prepare the code (extract it to the BUILD)
+-- In the SOURCES folder should be a file <name>-<version>.tar.gz
+-- It should contain folder Source0 (defined above)
+-- in which should be source files
+%prep
+%autosetup
+
+
+-- build process from (BUILD folder)
+%build
+make
+
+-- The %install section specifies how the built files should be installed in the build or staging directory (often referred to as the %{buildroot}) within the RPM build environment, not on the target system.
+-- from BUILD move BUILDROOT
+%install
+%make_install
+
+-- clean after installing
+%clean
+rm -rf $RPM_BUILD_ROOT
+
+-- The %files section lists the files and directories from the %{buildroot} (created during the %install phase) that should be included in the RPM package.
+-- FROM (BUILDROOT)
+-- Basically it replicates where it would put files in the target machine
+%files
+%{_bindir}/myprogram
+%{_libdir}/mylibrary.so
+%{_docdir}/mydocumentation
+
+
+%changelog
+* Thu Oct 19 2023 Super User
+0.0.2
+- Second version
+
+* Thu Oct 19 2023 Super User
+0.0.1
+- First version
+```
+
+##### example of .spec
+```spec
+%define version 0.0.1
+%define release 1%{?dist}
+
+Name:           lab7_12
+Version:        %{version}
+Release:        %{release}
+Summary:        A lab7_12 script
+
+License:        Apache 2.0
+Source0:        %{name}-%{version}.tar.gz
+
+Requires: bash
+
+Vendor: mab.inc
+Packager: Ma Sir <ma@mab.com>
+
+
+%description
+Description of the lab7_12 script
+
+
+%prep
+%autosetup
+
+
+%install
+mkdir -p %{buildroot}%{_bindir}
+mv script.bash %{buildroot}%{_bindir}/%{name}
+chmod +x %{buildroot}%{_bindir}/%{name}
+
+
+%files
+%{_bindir}/%{name}
+
+
+%changelog
+* Thu Oct 19 2023 Super User
+0.0.1
+- First version
+```
+
+The script called `lab7_12-0.0.1/script.bash`
+```bash
+#!/bin/bash
+
+lines=""
+
+while IFS= read -r line
+do
+  lines="$lines$line"
+done
+
+echo "$lines" | tr -d ' '
+```
+
+Script to execute all in 1
+```bash
+#!/bin/bash
+
+## -------------------------------- ##
+
+PCK_NAME="lab7_12-0.0.1"
+
+script=$(cat << EOF
+#!/bin/bash
+
+lines=""
+
+while IFS= read -r line
+do
+  lines="\$lines\$line"
+done
+
+echo "\$lines" | tr -d ' '
+EOF
+)
+
+spec=$(cat << EOF
+%define version 0.0.1
+%define release 1%{?dist}
+
+Name:           lab7_12
+Version:        %{version}
+Release:        %{release}
+Summary:        A lab7_12 script
+
+License:        Apache 2.0
+Source0:        %{name}-%{version}.tar.gz
+
+Requires: bash
+
+Vendor: mab.inc
+Packager: Ma Sir <ma@mab.com>
+
+
+%description
+Description of the lab7_12 script
+
+
+%prep
+%autosetup
+
+
+%install
+mkdir -p %{buildroot}%{_bindir}
+mv script.bash %{buildroot}%{_bindir}/%{name}
+chmod +x %{buildroot}%{_bindir}/%{name}
+
+
+%files
+%{_bindir}/%{name}
+
+
+%changelog
+* Thu Oct 19 2023 Super User
+0.0.1
+- First version
+EOF
+)
+
+## -------------------------------- ##
+
+
+## Start ##
+
+sudo dnf install -y rpmdevtools rpmlint
+rpmdev-setuptree
+
+
+## Setup SOURCES ##
+
+mkdir ~/"$PCK_NAME"
+
+echo "$script" > ~/"$PCK_NAME"/script.bash
+
+cd ~/ && tar czf ~/rpmbuild/SOURCES/"$PCK_NAME".tar.gz ./"$PCK_NAME"
+
+## Setup SPECS ##
+
+# cd ~/rpmbuild/SPEC/ && rpmdev-newspec $PCK_NAME
+echo "$spec" > ~/rpmbuild/SPECS/"$PCK_NAME".spec
+
+
+## Build ##
+
+rpmbuild -ba ~/rpmbuild/SPECS/"$PCK_NAME".spec
+
+## Install ##
+dnf install -y ~/rpmbuild/RPMS/x86_64/lab7_12-0.0.1-1.fc38.x86_64.rpm
+```
+
+##### installing & verifying
+To install:  
+`sudo dnf install ~/rpmbuild/RPMS/noarch/hello-0.0.1-1.el8.noarch.rpm`
+or  
+`sudo rpm -ivh ~/rpmbuild/RPMS/noarch/hello-0.0.1-1.el8.noarch.rpm`
+
+To verify:
+`rpm -qi hello`
+
+To get changelog: 
+`rpm -q hello --changelog`
+
+To see which files rpm contains:
+`rpm -ql hello` -> /usr/bin/hello.sh
+
+
+### lab 8
+```fish
+ip
+ifconfig
+ping # check avaliability to device
+netstat # shows network info (like current listening tcp, udp protocols)
+traceroute # show path to device
+tracepath
+dig # ask dns server for an ip, or namce
+nslookup # ask dns server for an ip, or namce
+host
+
+
+# 1 show your ip address
+ip addr
+
+# 3: wlp3s0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP group default qlen 1000
+# --> inet ip/mask brd broadcastip scope global dynamic noprefixroute wlp3s0
+#        valid_lft 3996sec preferred_lft 3996sec
+
+# mask /24 means the first 24 bits are taken, so we have 8 bits 2^8=256 - 2 api addreses
+
+# 2 show default gateway
+ip route
+
+# 3 get ip address of google.com
+nslookup google.com
+# or 
+dig google.com
+
+# 4 get name of 8.8.8.8
+nslookup 8.8.8.8
+
+# 5 
+ping 127.0.0.1
+
+# 6
+traceroute google.com
+
+# tasks
+
+# 1. avg package time
+ping kpi.ua 
+
+# 5. -t tcp -u udp -l listening -n numeric
+sudo netstat -tulnp
+# or
+sudo lsof -i -n
+
+# 7. count tcp
+netstat -t | wc -l
+
+# 8.
+sudo netstat -t | tail -n +3
+
+# 9.
+sudo netstat -tln | rg "(80|443)"
+
+# To add your domain for an ip address edit `/etc/hosts`
+```
+
+### lab 9
+#### Explnation
+*standart layers*
+1. Device: physical hard drives (/dev/sda; /dev/sdb; /dev/sdc; ....)
+2. Partition: hard drive partitions (/dev/sda ---> /dev/sda1; /dev/sda2/ ...)
+*start of lvm layers*
+3. Volume: physical volumes (this partition goes to this volume)
+4. Volume groups
+5. Logical volumes (I'm gonna make a file system on top of a volume group)
+
+```fish
+# LVM - logical volume management
+
+dd
+losetup
+mount
+
+# ======================
+# 1. Create a blank file 
+# ======================
+
+dd if=/dev/zero of=outputfile bs=1M count=2
+# /dev/zero provides endless stream of null bytes
+# /dev/urandom for random bytes (use od -A x -t x1z -v)
+# bs => block size
+# count => copy 2 blocks of block size (2 * 1M = 2M)
+
+#   dd if=/dev/urandom  of=outputFile1 bs=1M count=5
+# 5+0 records in --> reads 5blocsk
+# 5+0 records out --> writes 5blocks
+# 5242880 bytes (5,2 MB, 5,0 MiB) copied, 0,0268615 s, 195 MB/s
+
+# To veriy size `du -sh ./path/file` or `ls -lvrah`
+
+losetup -f /path/to/file # associates an available loop device with the file
+losetup -a # to check all created devices
+
+# sudo pvdisplay # show all physical volumes
+
+
+# ======================
+# 2. create volume group
+# ======================
+
+# to check all avaliable disks
+# lsblk _or_ fdisk -l
+
+sudo vgcreate your_vg_name /dev/mydisk1 /dev/mydisk2
+sudo vgdisplay your_vg_name 
+# sudo vgdisplay - show all volume groups
+
+# to extend vg
+# sudo vgextend vgname /dev/name
+# e.x. sudo toDelete2 vgname /dev/loop9
+
+
+# ======================
+# 3. create logical vol.
+# ======================
+
+sudo lvcreate -n my-logical-name -L 10G my_vg-name
+# e.x. 
+# sudo lvcreate -n ln-1 -L 7M my_vg-name
+# sudo lvcreate -n ln-2 -L 10M my_vg-name
+
+# sudo lvdisplay - show all logical volumes
+
+
+# ======================
+# 3. create file systems
+# ======================
+
+sudo mkfs.ext4 /dev/your_vg_name/your_logical_volume
+sudo mkfs.xfs /dev/your_vg_name/your_logical_volume
+sudo mkfs.btrfs /dev/your_vg_name/your_logical_volume
+
+sudo apt-get install reiserfsprogs
+sudo mkfs.reiserfs /dev/your_vg_name/your_logical_volume
+
+# lsblk - shows all devcies
+# df -h - show all mounted filesystems
+
+
+# ======================
+# 3. mount ur filysystem
+# ======================
+
+# to check filesystem
+sudo file -sL /dev/vg/lv
+
+sudo mount --mkdir /dev/vg/lv /mnt/point
+
+
+# HOW TO REMOVE IT
+
+sudo umount /mnt/path
+# if error, kill the process with pid `fuser -m /mnt/myloopdir`
+sudo lvs # or sudo lvdisplay # list all logical volumes
+sudo lvchange -an /dev/your_vg_name/your_lv_name # deatcivate logical volume
+sudo lvremove /dev/your_vg_name/your_lv_name # remove logical volume
+
+# if error "not found or rejected by a filter"
+# sudo vgreduce your_vg_name /dev/69qfSF-qhun-m90w-CopC-EbEP-dU7u-W25K5f
+
+sudo vgchange -an your_vg_name
+sudo vgremove your_vg_name
+
+
+sudo losetup -d /dev/loop#
+```
+
