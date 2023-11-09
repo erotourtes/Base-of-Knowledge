@@ -1,7 +1,7 @@
 ---
 title: "Java basics"
 date: 2022-08-21T09:53:28+03:00
-draft: true
+draft: false
 tags: ["java", "programming"]
 ---
 

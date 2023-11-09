@@ -1,7 +1,7 @@
 ---
 title: "Bash"
 date: 2022-09-19T15:10:31+03:00
-draft: true
+draft: false
 ---
 
 ## Varibales

@@ -979,7 +979,7 @@ sudo vgdisplay your_vg_name
 
 # to extend vg
 # sudo vgextend vgname /dev/name
-# e.x. sudo toDelete2 vgname /dev/loop9
+# e.x. sudo vgextend toDelete1 /dev/loop9
 
 
 # ======================
@@ -993,6 +993,17 @@ sudo lvcreate -n my-logical-name -L 10G my_vg-name
 
 # sudo lvdisplay - show all logical volumes
 
+# Reduce size  of lv
+# umount /mount/point
+# check filesystem
+# fsck -f /dev/mapper/VG0-lv0
+# resize filesystem
+# resize2fs /dev/mapper/VG0-lv0 24M
+
+# sudo lvreduce --size -10M /dev/vg/lv/voulme1
+
+# should work just with this
+# sudo lvreduce --size -10M -r /dev/vg/lv/voulme1
 
 # ======================
 # 3. create file systems
@@ -1037,3 +1048,34 @@ sudo vgremove your_vg_name
 sudo losetup -d /dev/loop#
 ```
 
+
+#### Tar / Zip
+```
+# c - create 
+# f - file 
+# v - verbose
+# z - compress
+
+tar -cvf file.tar.gz /dir
+
+# efficient to pack and unpack
+gzip (.gz)
+gzip -9 // level of compression
+gunzip (unpack .gz)
+
+# more efficient, but slower than gzip
+bzip2 (.bz2)
+bunzip
+
+# efficient to unpack
+# more unpack then pack
+xz
+unxz
+
+# convert
+dd if=file conv=ucase
+dd if=/dev/sda of=mbr.bin bs=512
+
+od -A x -t x1z -v file.bin
+
+```

@@ -1,7 +1,7 @@
 ---
 title: "Py"
 date: 2023-09-26T10:24:00+03:00
-draft: true
+draft: false
 ---
 
 #### Types

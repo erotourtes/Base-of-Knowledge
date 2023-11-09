@@ -1,7 +1,7 @@
 ---
-title: "Javascript"
+title: "Go"
 date: 2023-09-05T08:54:35+03:00
-draft: true
+draft: false
 ---
 
 
