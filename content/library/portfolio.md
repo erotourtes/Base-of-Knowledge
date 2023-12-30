@@ -7,17 +7,25 @@ TocOpen: true
 tags: ["portfolio"]
 ---
 
-
 A list of all my projects.
 
-If a project has a [D] next to it, it means that it is deployed and can be viewed online.  
+## Project Legend
+**README Files:**  
+Most projects listed below have an associated *README* file, 
+providing detailed information about the purpose and features of the project.
+For a comprehensive understanding of a project, please make sure to explore its *README*.
 
-Each project has a README file, which shows an overview of the project, unless there is a [-] next to the name.
+
+**Notation:**
+- [D] - Deployed and can be viewed online
+- [-] - No README file
 
 
 ---
 ## Kotlin
-### Harpooner
+<!-- ### Harpooner -->
+{{< hi "Harpooner" "https://raw.githubusercontent.com/erotourtes/Harpooner/89f5632f7a944d040aa32c79d0f13f382469c7fe/src/main/resources/META-INF/pluginIcon.svg" >}}
+
 [Repository](https://github.com/erotourtes/Harpooner)  
 A navigation plugin for IntelliJ IDEA, which allows you to quickly navigate to any file in the project.
 [IntelliJ Marketplace](https://plugins.jetbrains.com/plugin/21796-harpooner)
@@ -59,7 +67,17 @@ A real-time chat application, written in TypeScript using the React framework.
 - JWT authentication
 - REST API
 - WebSockets
-- React with vite build tool
+- React with the Vite build tool
+
+
+### Tasks [D]
+[Repository](https://github.com/erotourtes/Tasks)
+[Demo](https://erotourtes.github.io/Tasks/)  
+
+- React with the Vite build tool
+- Redux
+- TypeScript
+- TailwindCSS
 
 
 ### Word-Wise [D]
@@ -68,9 +86,10 @@ A real-time chat application, written in TypeScript using the React framework.
 A word game, written in TypeScript using the React framework. Needs to be deployed to a server to work properly.
 
 
-### Wayce
+<!-- ### Wayce -->
+{{< hi "Wayce" "https://raw.githubusercontent.com/erotourtes/wayce/e4f8d067abd4b471e340c0aba76f76fbbaa0c63d/.github/Public/Icon.svg" >}}
 [Repository](https://github.com/erotourtes/Wayce)  
-A tf-idf based search engine, which allows to search in different types of documents (pdf, txt, etc.) and Wikipedia.
+A tf-idf based search engine, which allows you to search in different types of documents (pdf, txt, etc.) and Wikipedia.
 
 
 ### Database-coursework [-]
@@ -90,7 +109,7 @@ A basic protocol over TCP. Can be integrated with [wireshark](https://www.wiresh
 ### NMT [D]
 [Repository](https://github.com/erotourtes/NMT)
 [Demo](https://erotourtes.github.io/NMT/public)  
-A program that I wrote to learn about emphasis in ukranian language.
+The program I wrote to learn accents in the Ukranian language.
 
 
 ---
@@ -98,14 +117,15 @@ A program that I wrote to learn about emphasis in ukranian language.
 ### SnakeJS [D]
 [Repository](https://github.com/erotourtes/SnakeJS)
 [Demo](https://erotourtes.github.io/SnakeJS/)
-> move with WASD or arrow keys, restart by clicking on the screen
+> Move with WASD or arrow keys, restart by clicking on the screen
 
 A snake game, written in JavaScript using the pixi.js library.
 
 
 ---
-## Html/Css only    
-### lyceum-last-project [D]
+## Html/CSS only    
+<!-- ### lyceum-last-project [D] -->
+{{< hi "lyceum-last-project [D]" "https://raw.githubusercontent.com/erotourtes/lyceum-last-project/d5e65c4ae9cb0b72a1b8f3fb51bfb5deb32ffa6e/src/proj.svg" >}}
 [Repository](https://github.com/erotourtes/lyceum-last-project)
 [Demo](https://erotourtes.github.io/lyceum-last-project/)
 
@@ -122,14 +142,14 @@ The repository contains a lot of different algorithms, such as graph traversal w
 ## Lua
 ### Wrapper-machine.nvim
 [Repository](https://github.com/erotourtes/Wrapper-machine.nvim)  
-A small plugin for neovim editor, which allows you to change brackets and quotes more easily.
+A small plugin for the Neovim editor, which allows you to change brackets and quotes more easily.
 
 
 ---
 ## Python
 ### Anki-translator
 [Repository](https://github.com/erotourtes/Anki-translator)  
-A program that allows you in one click to translate the whole deck of cards in Anki.
+A program that allows you to translate the whole deck of cards in Anki in one click .
 
 
 ---
