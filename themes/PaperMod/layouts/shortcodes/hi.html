@@ -1,6 +1,7 @@
 {{ $title := .Get 0 | default "Default Title" }}
+{{ $title_id := .Get 0 | urlize }}
 {{ $imageLink := .Get 1 | default "path/to/default/image.jpg" }}
 <div style="display: flex">
-  <h3 id="{{$title}}">{{ $title }}</h3>
+  <h3 id="{{$title_id}}">{{ $title }}</h3>
   <img src={{ $imageLink }} alt={{ $title }} width="35px" style="padding-left: 10px"/>
 </div>
