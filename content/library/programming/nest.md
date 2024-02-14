@@ -135,10 +135,26 @@ export class CatsController {
 
 #### Scopes
 By default, Nest makes provider to be a singleton, which means that there is only one instance of the provider throughout the application.  
-`@Injectable({ scope: Scope.SINGLETON })`
 `@Injectable({ scope: Scope.REQUEST })`  
 `@Injectable({ scope: Scope.TRANSIENT })`  
 `@Injectable({ scope: Scope.DEFAULT })`
+
+##### Request
+Request-scoped providers are not shared across requests.
+All dependent providers on a request-scoped provider will be request-scoped as well.
+
+##### Transient
+Transient providers are not shared at all. Each consumer that injects a transient provider will receive a new, dedicated instance of that provider.
+However, all dependent providers of a transient provider will be shared.
+```ts
+@Injectable({ scope: Scope.TRANSIENT })
+export class HelloService {
+constructor(@Inject(INQUIRER) private parentClass: object) {} // we'll get parent class instance 
+}
+```
+
+##### Durable providers
+> Similar to the request scope, durability bubbles up the injection chain. That means if A depends on B which is flagged as durable, A implicitly becomes durable too (unless durable is explicitly set to false for A provider). 
 
 #### Custom providers
 Providers can include any value not just services

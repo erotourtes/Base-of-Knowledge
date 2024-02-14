@@ -134,6 +134,46 @@ type Saver interface {
 }
 ```
 
+### Build in
+
+```go
+type Stringer interface {
+  String() string
+}
+
+type error interface {
+  Error() string
+}
+
+type Reader interface {
+  Read(p []byte) (n int, err error)
+}
+
+type Writer interface {
+  Write(p []byte) (n int, err error)
+}
+
+type Closer interface {
+  Close() error
+}
+```
+
+### Good to know
+```go
+type shape struct {
+  ...
+}
+
+func (s *shape) String() string {
+  ...
+}
+
+func main() {
+  var s shape
+  fmt.Println(s) // can't compile, becase *s implements the interface, not s
+}
+```
+
 ### Casting
 ```go
 c, ok := s.(circle)
