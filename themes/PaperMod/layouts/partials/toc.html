@@ -95,6 +95,7 @@
   <script>
     let activeElement;
     let elements;
+    let wasClicked = false;
     window.addEventListener('DOMContentLoaded', function (event) {
       checkTocPosition();
 
@@ -103,6 +104,12 @@
       activeElement = elements[0];
       const id = encodeURI(activeElement.getAttribute('id')).toLowerCase();
       document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+
+      document.querySelector(`.inner`).addEventListener('click', (event) => {
+        if (event.target.tagName === 'A') {
+          wasClicked = true;
+        }
+      });
     }, false);
 
     window.addEventListener('resize', function (event) {
@@ -121,7 +128,26 @@
       elements.forEach(element => {
         const id = encodeURI(element.getAttribute('id')).toLowerCase();
         if (element === activeElement) {
-          document.querySelector(`.inner ul li a[href="#${id}"]`).classList.add('active');
+          const activeHeader = document.querySelector(`.inner ul li a[href="#${id}"]`);
+          activeHeader.classList.add('active');
+
+          const offsetTop = activeHeader.offsetTop;
+          const offsetHeight = activeHeader.offsetHeight;
+          const parentElement = document.querySelector(`.inner`);
+          const parentScrollTop = parentElement.scrollTop;
+          const isVisible =
+            (offsetTop - offsetHeight - 52 - 80) > parentScrollTop &&
+            offsetTop < (parentScrollTop + parentElement.offsetHeight - 52 - 80)
+          if (!isVisible && !wasClicked) {
+            parentElement.scrollTo({
+              top: offsetTop - (parentElement.offsetHeight / 2),
+              behavior: 'smooth'
+            });
+          }
+          console.log(wasClicked);
+          setTimeout(() => {
+            wasClicked = false;
+          }, 1000);
         } else {
           document.querySelector(`.inner ul li a[href="#${id}"]`).classList.remove('active');
         }
