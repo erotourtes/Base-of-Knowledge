@@ -207,7 +207,7 @@ CREATE TABLE IF NOT EXISTS customers
 ALTER TABLE customers
 	ADD last_name VARCHAR(50) NOT NULL AFTER first_name, -- also `ADD COLUMN` instead of `ADD`
     MODIFY COLUMN first_name VARCHAR(55) DEFAULT '', -- `COLUMN` is optional
-    DROP points;
+    DROP COLUMN points;
 ```
 
 ##### Alter with primary / foreign keys
@@ -240,6 +240,7 @@ SELECT
  	MAX(invoice_total) AS highest,
  	AVG(invoice_total * 1.1) AS average,
     COUNT(DISTINCT invoice_total) AS 'distinct number of invoices'
+    COUNT(*) FILTER (WHERE a > b) AS 'count of a > b'
 FROM invoices
 ```
 
@@ -293,13 +294,19 @@ GROUP BY client_id, state, city WITH ROLLUP
 - RIGHT
 - SUBSTRING(str, start, len) -- or end
 - LOCATE('str', 'in str')  
+- POSITION('str' IN 'str')  
 - CONCAT
+- REPLACE('str_old', 'old', 'new')
+- REGEXP_REPLACE('str', 'pattern', 'replacement', 'g')
 ### Date and Time
 - NOW(), CURDATE(), CURTIME()
 - YEAR(NOW()) -- MONTH, DATE, HOUR
 - EXTRACT(DAY FROM NOW())
-- DATE_FORMAT, TIME_FORMAT
-- DATE_ADD, DATE_DIFF, TIME_TO_SEC
+- DATE_FORMAT, TIME_FORMAT (DATE_FORMAT(trans_date, '%Y-%m'))
+- DATE_ADD, DATE_DIFF, TIME_TO_SEC 
+- DATE_ADD(order_date, INTERVAL 1 MONTH)
+- TIMESTAMPDIFF(MONTH, order_date, ship_date),
+- TIMESTAMPADD(MONTH, 1, order_date)
 
 ### Custom functions
 Should have at least 1 modifier:
@@ -339,7 +346,7 @@ FROM clients
 ## Conditions
 - IFNULL(field, 'field is null')
 - COALESCE(field1, field2, ..., 'Not assigned') -- choose first not null field
-- IF
+- IF (there is no in postgresql, use CASE instead)
   ```sql
   SELECT 
     id,
@@ -364,7 +371,59 @@ FROM clients
   ```
 
 ---
+## Previous values
+```sql
+WITH sessions AS (
+  SELECT *, (
+    CASE WHEN id - LAG(id, OFFSET, DEFAULT_VALUE) OVER() = 1 -- lag is a previous value; over() is a window function
+    AND value = LAG(value) OVER()
+    THEN 0 ELSE 1 END
+  )
+ FROM entries
+ ORDER BY id
+)
+
+SELECT
+  id
+  , value
+  , SUM(session) OVER(ORDER BY id) AS run_id
+FROM sessions;
+```
+
+## ROW_NUMBER & RANK & DENSE_RANK
+- rank - 1, 2, 3, 3, 5
+- dense_rank - 1, 2, 3, 3, 4
+- row_number - 1, 2, 3, 4, 5
+```sql
+WITH ranked AS (
+  SELECT 
+    id,
+    value,
+    ROW_NUMBER() OVER(ORDER BY value DESC) AS rank
+  FROM table
+)
+```
+it would return a rank of a value in a table
+
+it has a OVER clause, which is a window function (inside a window function you can use `PARTITION BY` and `ORDER BY`)
+window function is a function that operates on a set of rows and returns a single value for each row from the set
+
+---
 ## Complex queries
+```sql
+-- CTE (Common Table Expression)
+WITH special_sales AS (
+    SELECT *
+    FROM sales
+    WHERE price > 90.00
+) 
+SELECT *
+FROM departments
+WHERE department_id IN (
+    SELECT department_id
+    FROM special_sales
+);
+```
 
 ```sql
 -- WHERE clause
@@ -524,7 +583,7 @@ It doesn't have theese:
 - DISTINCT
 - Aggregate FUNCTIONS
 - GROUP BY / HAVING
-- UNION
+- UNION (removes duplicates by default, use `UNION ALL` to combine all the combinations)
 
 Updatable views can be updated C;
 ```sql
@@ -650,6 +709,12 @@ SELECT @var1, @var2
 ```
 
 ### Types
+#### Casting
+```sql
+SELECT CAST('2019-01-01' AS DATE)
+-- or 
+SELECT '2019-01-01'::DATE
+```
 #### String
 - Char(x) fixed-length
 - VARCHAR(x) max: 65,535, stores only occupied characters
@@ -841,6 +906,9 @@ CREATE INDEX idx_name ON table (field(number_of_first_characters))
 
 -- FULL text index
 CREATE FULLTEXT idx_name_name1 ON table (name, name1)
+
+-- postgress
+-- WHERE to_tsvector(name) @@ to_tsquery('Awesome'); -- to_tsvector - converts a string to a vector; to_tsquery - converts a string to a query; @@ - MATCH
 
 SELECT *,
   MATCH(name, name1) AGAINST("some text") -- select relevancy sqore

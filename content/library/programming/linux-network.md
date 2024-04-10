@@ -453,7 +453,7 @@ a01 capability
 a02 login <name> <password>
 a03 list "" "*" # list all folders
 a04 select INBOX # or inbox
-# migth use `SEARCH ALL` to search for all messages
+# migth use `SEARCH ALL` to search for all messages (or search unseen)
 a05 fetch 1:* flags # from 1 to end
 a06 fetch 17 body[header]
 a06 fetch 17 body[text]
@@ -961,4 +961,621 @@ FTPS (FTP + TLS) (990 / TCP control; 989 / TCP data transfer)
 SCP (Secure copy)
 SFTP (FTP + ssh)
 
+#### Terminal
+```fish
+apt install vsftpd
+netstat -tulnp | grep 21
+vim /etc/vsftpd.conf
+###
+anonymous_enable=YES
+write_enable=YES
+anon_upload_enable=YES
+anon_mkdir_write_enable=YES
+ftpd_banner=Welcome to FTP server
+chroot_local_user=YES
+chroot_list_enable=YES
+user_sub_token=$USER
+local_root=/home/$USER/ftp
+chroot_list_file=/etc/vsftpd.chroot_list
 
+anon_other_write_enable=YES
+
+rsa_cert_file=<file>
+rsa_private_key_file=<file>
+ssl_enable=YES
+force_local_data_ssl=NO # turn of the encryption for the data for testing
+
+
+
+systemctl restart vsftpd
+# inside /etc/passwd there is a new user
+mkdir /srv/ftp/incoming
+mkdir /srv/ftp/pub
+chmod 777 /srv/ftp/incoming
+
+adduser user1
+adduser user2
+mkdir /home/user1/ftp
+chown nobody:nogroup /home/user1/ftp
+vim /etc/vsftpd.chroot_list
+####
+user2
+
+systemctl restart vsftpd
+
+
+ftp <ip>
+name: ftp
+password: <blank>
+ls
+cd incoming
+get file.txt
+
+# 
+openssl s_client -connect <ip>:21 -starttls ftp
+
+
+# To make users to be able to write
+vim /etc/vsftpd.conf
+# add
+write_enable=YES
+# or user_config_dir=/etc/vsftpd/conf.d
+# then for each user create a file with the name of the user and add write_enable=YES
+```
+
+### NFS (Network File System)
+- NFSv2 (UDP)
+- NFSv3 (TCP/udp)
+- NFSv4 (TCP)
+- No state (stateless)
+- on core level (for speed)
+
+
+- Physical Ethernet
+- Link     Ethernet
+- Network  IP
+- Transport TCP/UDP
+- Session  RPC
+- Presentation XDR
+- Application NFS (NFS protocol (not the file system))
+
+`Inode #, inode generation #, file system id>`
+
+## Virtual file system
+If optical - ISOx96/64 filesystem
+flesh - FAT
+ssd - ext4
+therefore VFS is implemented on the client
+```
+System call                   System call
+vnode/VFS                     |
+|       |           |         vnode/VFS
+FAT32   EXT4 FS     NFS       |
+|       |           |         server routines
+USB     HDD         RPC       |
+flash   ssd         |         RPC
+>       >           > Network ^
+```
+
+## File path
+More depth we have, more calls we need to make (time), therefore breadth first
+
+- fd = open("/usr/joe/6360/list.txt")
+- =>
+- lookup (rootfh, "usr") => (fh0, attr)
+- lookup (fh0, "joe") => (fh1, attr)
+- lookup (fh1, "6360") => (fh2, attr)
+- lookup (fh2, "list.txt") => (fh3, attr)
+
+## Mounting
+While mounted, local files become invisible, unless unmounted
+`mountd` - can be run on different ports
+rpcbind or portmapper - to map the ports (111 / TCP, UDP)
+
+/etc/exports - main configuration file
+/var/lib/nfs/xtab - list of the mounted directories
+/var/lib/nfs/etab - list of the exported directories
+/var/lib/nfs/rmtab - list of the remote mounts
+
+/proc/fs/nfsd - nfsd configuration
+/proc/net/rpc - rpc configuration
+/var/run/portmap_mapping
+ 
+> as a recap, NFS i a file level protocol, therefore only 1 read/write at a time
+auth_nlm(no_auth_nlm) or secure_locsk(insecure_locks) - for the lock manager, auth for blocking the file
+
+nohide (hide) - child directories should be exported explicitly
+ro (rw) - ony read or read/write
+secure(insecure)
+subtree_check(no_subtree_check) - check the path, more secure, less performance
+sync(async) - server might respond before the data is written to the disk
+wdelay(nodelay) - delay the write
+root_squash(no_root_squash) - root become UID/GID as you specify
+all_squash(no_all_squash) - all users become UID/GID as you specify
+anonuid, anongid - specify the UID/GID for the anonymous user
+map_static - /etc/file_maps/users
+
+
+nosuid - do not allow the suid
+nodev - do not allow block devices
+lock - allow to block NFS
+mounhost - name
+mountport - mountd dameon
+port
+rsize, wsize - size of the block
+tcp/dup
+fg/bg
+
+```fish
+# Server
+# uname -a => core version
+# check rg NFSD /boot/config<core-version>
+# should have CONFIG_NFSD_V4=y
+
+# no_subtree_check is also for a security reason; user might guess the file index
+
+apt install nfs-kernel-server
+netstat -tulnp 
+rpcinfo -p
+cat /proc/fs/nfsd/versions
+mkdir -p /nfs/{ro,rw,test}
+tree /nfs
+vim /etc/exports
+## IMPORTANT ##
+## you need to use tabs instead of spaces
+## you need to not have spaces after the comma
+###
+/nfs/ro <ip for allowed 10.18.49.0/24>(ro,sync,no_subtree_check)
+/nfs/ro <ip for allowed 10.18.49.0/24>(ro,sync,no_subtree_check,anonuid=1000,anongid=1000)
+
+systemctl restart nfs-kernel-server
+cat /var/lib/nfs/etab # to check the exported directories
+
+# Client
+apt install nfs-common
+mount <server ip>:/nfs/ro ro
+
+umount /ro, /rw
+```
+```fish
+vim /etc/default/nfs-kernel-server
+
+/etc/resolv.conf
+# domain zon07.com
+# search zone07.com
+# nameserver <ip>
+```
+
+
+## SMB & CIFS
+Protocol for the file sharing for Windows
+- SMB - Server Message Block
+- CIFS - Common Internet File System
+
+NAS architecture, so no need to download the file in order to work with it
+
+- sessions
+- file access level
+- printing service
+- message service
+
+```
+TCP/IP
+
+Application SMB
+Session     NetBIOS/NetBEUI
+Transport   SPX/TCP/UDP/NetBEUI
+Network     IPX/IP/NetBEUI
+Link        LOM
+Physical    LOM
+```
+NetBeui names are identificators
+No more then 15 microsoft systems in 1 service is recoommend doue to broadcast (in particularly becase of SMB)
+
+### Name Service
+NetBios (NBNS or WINS - copy of DNS)
+### Types of computers NetBios
+- b-node - broadcast
+> computers craetes packet for NetBIOS - UDP 3 (250ms) times 137 port -> if name is taken the computer sends secure packet -> if no response, the computer takes the name
+- p-node - point-to-point
+> computer sends the request to the NBNS, unicast (find through broadcast end then unicast) 137 port
+- m-node - mixed (broadcast signin, broadcast for names); if no broadcast then NBNS for procedures
+- h-node - hybrid (NBNS signin, point-to-point for names); if no NBNS then broadcast
+
+### Session Service
+NetBios (SMB)
+Copy of TCP (139 port)
+
+### Datagram Service
+Broadcast 
+Copy of UDP (138 port)
+
+### Terminal
+```fish
+apt install samba
+cp /usr/share/samba/smb.conf /etc/samba/
+cd /etc/samba/
+vim smb.conf
+###
+# we don't need printers
+[homes]
+  commnet = Home Directories
+  browseable = no
+  read only = no
+  create mask = 0700 # 0664
+  directory mask = 0700 # 0775
+  valid users = %S
+[hidden]
+  path = /home/user1/hidden
+  force user = root # owner of the created files in path
+  force group = root
+  browseable = no
+  create mask = 0700
+  directory mask = 0700
+  # valid users = user1
+  write list = user1
+  guest ok = no # not to allow the guest
+[pub]
+  comment = Public readonly
+  path = /home/pub
+  browseable = yes
+  writable = no
+  guest ok = yes
+[incoming]
+  comment = Incoming writable access
+  path = /home/incoming
+  browseable = yes
+  writable = yes
+  guest ok = no
+  create mask = 0666
+  directory mask = 0777
+
+
+systemctl restart smbd
+systemctl restart nmbd
+
+mkdir -p /home/pu{pub,hidden,incomming}
+chmod -R 777 /home/ # we can use system privileges or the samba privileges (which is more flexible); though the privilages are combined from smb and system
+cat /etc/passwd
+smbpasswd -a user1 # must be in passwd
+
+
+# Client
+apt install smbclient
+apt install nbtscan
+nbtscan <ip>/24
+
+nmblookup --d4 workgroup
+
+smbclient -U guest -L <ip> # To list the shares
+smbclient -U user1 //<ip>/homes
+# smbclient -U user1 //<ip>/username
+# ususal linux commnands
+smbclient -U user1 -L //<ip>/hidden
+
+
+nmblookup -M workgroup
+nmblookup workgroup
+```
+
+## HTTP
+- 80 / TCP
+- udp might be used for video
+- no state
+
+- URL (Uniform Resource Locator)
+  > <schema>://<host>:<port>/<path>;<parameters>?<query>#<fragment>
+- URN (Uniform Resource Name) - doesn't depend from location in the net
+- URI (Uniform Resource Identifier) - URL + URN
+
+Http < 2.0 -> text
+Http > 2.0 -> binary + text
+
+### Structure
+- Request
+  > Method URI Vertion<CR><LF>
+  > Headers
+  > <CR><LF>
+  > Body
+- Response
+  > Version Code Message<CR><LF>
+  > Headers
+  > <CR><LF>
+  > Body
+
+### Methods
+- GET (we can send body with get to the server)
+- POST
+- PUT
+...
+
+### Codes
+- 1xx - informational
+- 2xx - success
+- 3xx - redirection
+- 4xx - client error
+- 5xx - server error
+
+### Terminal
+```fish
+telnet <ip> 80
+GET / HTTP/1.0 # 1 request 1 response
+<enter><enter>
+
+GET / HTTP/1.1 # 1 request (connection is not closed immedietly)
+host: <ip>
+
+# URI is visible for everyone
+GET get.php?name=Test Http/1.0 # it is limited to send data via URI
+
+POST /post.php HTTP/1.1
+host: <ip>
+content-type: application/x-www-form-urlencoded
+content-length: 9
+
+# it can be encrypted
+name=Test
+<enter><enter>
+
+
+# authrorization
+GET /auth.php HTTP/1.1
+Authorization: Basic <base64>
+# echo -n "user1:password" | base64
+
+nghttp -v http://<ip>
+```
+
+### Session
+- headers
+- ip addresses (nat -)
+- large urls
+- cookies
+  - http request
+  - http respoonse
+  - files (cookies.txt)
+  - internal storage (sessionStorage, localStorage)
+
+### Permanent connection 
+Http/1.0 - request response (after the response the connection is closed)
+> keep in mind, that tcp starts from the 0 segment speed, and then increases  
+> also it reserves memory depending on the speed, migth be 1mb for request, and 1mb for response
+Http/1.1 - request several responses (the connection is not closed after response) (the drawback is that the server might be overloaded, even if the connection is not used)
+It borkes the OSI model, becuas we tell tcp layer to close from the header of the http.
+> Connection: keep-alive / close or timeout
+
+### Caching
+- http proxy server (browser -> http proxy server -> server -> http proxy server -> browser)
+- browser cache (local cahce)
+
+Header `Cache-Control: max-age=3600` - cache for 1 hour
+- no-store
+- no-cache
+- public
+- private 
+- must-revalidate
+- max-age=3600
+
+
+```mermaid
+graph LR
+    A[Browser] -->|Request| B[Proxy]
+    B -->|Request| C[Server]
+    C -->|Response Cache-Control| B
+    B -->|Response| A
+```
+
+```mermaid
+graph LR
+    A[Browser] -->|Request| B[Proxy]
+    B -->|Response Cache| A
+```
+
+```mermaid
+graph LR
+    A[Browser] -->|Request| B[Proxy]
+    B -->|Request| C[Server If-None-Match]
+    C -->|Response 304 Not modified| B
+    B -->|Response Cache| A
+```
+
+- Expires - usually used to tell the browser not to cache the file
+- Last-Modified - the last time the file was modified
+- Get with condition
+  - if-modified-since - based on metadata (answer, 304 not modified, expires, ast-modified, cache-control)
+  - ETag (entity tag) - based on hash
+
+### Proxy servers
+```mermaid
+graph LR
+  subgraph Computres
+    A[Computer] & A1[Computer] & A2[Computer] & A3[Computer]
+  end
+  A & A1 & A2 & A3 -->|Request| B{Proxy}
+  B -->|Request| C((Server))
+  B -->Ca[(Cache)]
+  C -->|Response| B
+  B -->|Response| A & A1 & A2 & A3
+```
+- if outer proxies connectin is slower than the inner (Today, it is not the case)
+- if we need to use 1 ip for the outer network (NAT suites better)
+- if we need to cache the data (Sometimes it even might be slover with a large cache)
+  
+Today it is more common to use `reverse proxy` - where the proxy is located on the server side (for the load balancing, for the security, for the caching)
+
+```mermaid
+graph LR
+  subgraph Servers
+    A[Server] & A1[Server] & A2[Server] & A3[Server]
+  end
+
+  subgraph Internet
+    C[Client]
+  end
+  C <-->|Request| B{Proxy}
+  B <-->|Request| A & A1 & A2 & A3
+  B <-->Ca[(Cache)]
+```
+### Terminal
+```fish
+# 1
+telnet <ip> 80
+GET / HTTP/1.1
+host: <ip>
+
+# response
+HTTP/1.1 200 OK
+Date: <date>
+...
+ETag: "5c-hash"
+
+
+# 2
+telnet <ip> 80
+GET / HTTP/1.1
+host: <ip>
+if-none-match: "5c-hash"
+
+# response
+HTTP/1.1 304 Not Modified
+
+
+# 3
+telnet <ip> 80
+GET / HTTP/1.1
+if-modified-since: <date>
+
+# 4
+...
+#response
+Expires: 19 Nov 1981 08:50:00 GMT
+Cache-Control: no-store, no-cache, must-revalidate
+```
+
+
+```fish
+sudo apt update && sudo apt install squid
+
+telnet <ip> 3128
+GET http://<ip> HTTP/1.1
+
+vim /etc/squid/squid.conf
+# localnet
+
+
+# ssl
+telnet <ip> 3129
+CONNECT <ip>:443 HTTP/1.1
+
+connectio: close # to close
+```
+
+## Load Balancing
+### 1 computer 
+- single point of failure
+- no scalability
+
+### Balancing
+- http
+- https (cypher on balancer, or on the server)
+- tcp (assume that all connections are the same) 
+- udp (dns)
+
+### Algorithms
+- round-robin - one by one, first request to the first server, second to the second, etc. (effective on large number of servers)
+- least connections - to the server with the least connections (overcomes the round-robin efficiency on small number of servers)
+- source hash - hash of the source ip address
+- sticky sessions
+
+### 2 LB
+- active-passive - one is working, the other is waiting (heartbeat)
+- active-active - both are working (heartbeat) (HA cluster - high availability)
+
+
+### Terminal
+```fish
+# nginx
+apt update && apt install nginx
+netstat -tulnp | grep 80
+
+vim /var/www/html/index.html
+# <h1>Server 1</h1>
+
+vim /etc/nginx/sites-available/default
+# listne 127.0.0.1:80;
+sudo systemctl restart nginx
+
+# second server as well
+
+
+vim /etc/nginx/conf.d/loadbalancer.conf # name arbitrary, suffix should be .conf
+#
+upstream backend_name {
+  ip_hash; # algorithm
+  server <ip1>:80;
+  server 127.0.0.1;
+}
+
+server { # -> reverse proxy server
+  listen <outer ip>:80;
+  location / {
+    proxy_pass http://backend_name;
+  mabooledua@gmail.com}
+}
+
+
+tail -f /var/log/nbinx/access.log
+tail -f /var/log/nbinx/errorr.log
+
+# we can speify the server
+telnet <outer ip> 80
+GET / HTTP/1.1
+host: <outer ip>
+```
+
+
+```fish
+# install
+# create /env/nginx/sites-available/http (to server on http static files from url)
+#
+server {
+  listen 80;
+  location / {
+    root /var/www/html;
+    auth_basic "Restricted Content";
+    auth_basic_user_file /etc/nginx/tpasswd;
+  }
+}
+
+# create ln -s /env/nginx/sites-available/http /env/nginx/sites-enabled/http
+
+# check with `sudo nginx -t`
+
+# create a .htpasswd file with apache2-utils
+# htpasswd -c /etc/nginx/.htpasswd user1
+
+# telnet <ip> 80
+# GET / HTTP/1.1
+# Host: <ip>
+#
+#
+
+# ssl
+# openssl s_client -connect <ip>:443
+# GET / HTTP/1.1
+# Host: <ip>
+#
+#
+
+# e.x
+# openssl s_client -connect www.metal.com:8888
+# GET / HTTP/1.1
+# Host: www.metal.com
+# Authorization: Basic <base64>
+# Connection: close
+
+# to convert `echo -n 'gold:a' | base64`
+
+# echo -e "GET / HTTP/1.1\nHost: www.metal.com\nAuthorization: Basic Z29s"
+# openssl s_client -connect www.metal.com:8888
+```
