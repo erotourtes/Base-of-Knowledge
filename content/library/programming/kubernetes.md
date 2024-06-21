@@ -1100,5 +1100,24 @@ graph LR
 ```fish
 kube-apiserver -h | grep enable-admission-plugins
 kubectl exec kube-apiserver -n kube-system -- kube-apiserver -h | grep enable-admission-plugins # kubeadm setup
+
+kubectl explain pod # to see in which API group the pod is
+# KINK: POD
+# VERSION <GROUP>:<VERSION>
+kubectl api-resources
+
+kubectl get pod -n kube-system
 ```
 
+1. mutation admission controller
+2. validation ac
+
+### Deprecation
+```fish
+# a separate plugin (so needs to be installed separately)
+kubectl convert -f pod-definition.yaml --output-version=v1
+```
+
+### Custom Resource Definitions (CRD)
+```fish
+```

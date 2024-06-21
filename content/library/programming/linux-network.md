@@ -1579,3 +1579,18 @@ server {
 # echo -e "GET / HTTP/1.1\nHost: www.metal.com\nAuthorization: Basic Z29s"
 # openssl s_client -connect www.metal.com:8888
 ```
+
+
+## Instant Messaging
+
+### Desentralized
+- XMPP (Jabber)
+- Matrix
+
+### Components
+- identification
+  > in `xmpp` it is `jid` (user@domain/resource)
+- client state
+- transport servcie
+
+
